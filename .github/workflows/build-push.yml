@@ -4,6 +4,7 @@ name: Build && Push
 on:
   push:
     branches:
+      - dls-develop
       - develop
       - staging
 
