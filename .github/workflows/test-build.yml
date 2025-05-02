@@ -5,6 +5,9 @@ name: E2E and build testing.
 on:
   pull_request:
     branches: [develop]
+  push:
+    branches:
+      - dls-develop
 
 env:
   NODE_VERSION: 22.x

@@ -3,6 +3,9 @@ name: Lint
 on:
   pull_request:
     branches: [develop, master]
+  push:
+    branches:
+      - dls-develop
 
 env:
   NODE_VERSION: 22.x
