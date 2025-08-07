@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
 import { Invite } from '../../models/Invite';
-import { InviteDataSource } from '../InviteDataSource';
+import { GetInvitesFilter, InviteDataSource } from '../InviteDataSource';
 import database from './database';
 import { createInviteObject, InviteRecord } from './records';
 
@@ -47,14 +47,43 @@ export default class PostgresInviteDataSource implements InviteDataSource {
       });
   }
 
+  getInvites(filter: GetInvitesFilter): Promise<Invite[]> {
+    return database
+      .select('*')
+      .from('invites')
+      .modify((query) => {
+        if (filter.createdBefore) {
+          query.where('created_at', '<', filter.createdBefore);
+        }
+
+        if (filter.createdAfter) {
+          query.where('created_at', '>', filter.createdAfter);
+        }
+
+        if (filter.isClaimed !== undefined) {
+          if (filter.isClaimed) {
+            query.whereNotNull('claimed_at');
+          } else {
+            query.whereNull('claimed_at');
+          }
+        }
+
+        if (filter.isExpired) {
+          query.where('expires_at', '<', new Date());
+        }
+      })
+      .then((invites: InviteRecord[]) => invites.map(createInviteObject));
+  }
+
   async create(args: {
     code: string;
     email: string;
     note: string;
     createdByUserId: number;
     expiresAt: Date | null;
+    templateId?: string | null;
   }): Promise<Invite> {
-    const { code, email, createdByUserId, expiresAt } = args;
+    const { code, email, createdByUserId, expiresAt, templateId } = args;
 
     return database
       .insert({
@@ -62,6 +91,7 @@ export default class PostgresInviteDataSource implements InviteDataSource {
         email: email,
         created_by: createdByUserId,
         expires_at: expiresAt,
+        template_id: templateId,
       })
       .into('invites')
       .returning('*')
@@ -80,6 +110,7 @@ export default class PostgresInviteDataSource implements InviteDataSource {
     claimedByUserId?: number | null;
     isEmailSent?: boolean;
     expiresAt?: Date | null;
+    templateId?: string | null;
   }): Promise<Invite> {
     return database
       .update({
@@ -90,6 +121,7 @@ export default class PostgresInviteDataSource implements InviteDataSource {
         claimed_by: args.claimedByUserId,
         is_email_sent: args.isEmailSent,
         expires_at: args.expiresAt,
+        template_id: args.templateId,
       })
       .from('invites')
       .where('invite_id', args.id)
