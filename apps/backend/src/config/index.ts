@@ -14,6 +14,9 @@ switch (process.env.DEPENDENCY_CONFIG) {
   case 'eli':
     require('./dependencyConfigELI');
     break;
+  case 'dls':
+    require('./dependencyConfigDLS');
+    break;
   case 'test':
     require('./dependencyConfigTest');
     break;
