@@ -1,0 +1,26 @@
+name: Update develop for DLS fork
+
+permissions:
+  contents: write
+  actions: write
+
+#on: workflow_dispatch
+on: [push, pull_request]
+
+jobs:
+  merge-master-back-to-dev:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: write
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Fetch and merge
+      run: |
+          git fetch origin
+          git checkout develop
+          git remote add upstream https://github.com/UserOfficeProject/user-office-core.git
+          git fetch upstream
+          git merge --ff-only upstream/develop
+          git push origin develop
