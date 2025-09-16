@@ -50,7 +50,6 @@ import {
 } from '../eventHandlers/messageBroker';
 import { createApplicationEventBus } from '../events';
 import { ApplicationEvent } from '../events/applicationEvents';
-import { DefaultDownloadService } from '../factory/DefaultDownloadService';
 import { FapDataColumns } from '../factory/xlsx/FapDataColumns';
 import {
   callFapPopulateRow,
