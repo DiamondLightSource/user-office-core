@@ -137,6 +137,4 @@ mapValue(Tokens.ListenToMessageQueue, createSkipListeningHandler());
 mapValue(Tokens.ConfigureEnvironment, configureDLSEnvironment);
 mapValue(Tokens.ConfigureLogger, () => setLogger(new ConsoleLogger()));
 
-mapClass(Tokens.DownloadService, DefaultDownloadService);
-
 mapClass(Tokens.BasicUserDetailsLoader, BasicUserDetailsLoader);
