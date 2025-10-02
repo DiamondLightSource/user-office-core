@@ -45,8 +45,8 @@ import PostgresWorkflowDataSource from '../datasources/postgres/WorkflowDataSour
 import { createSkipLoggingHandler } from '../eventHandlers/logging';
 import { SkipSendMailService } from '../eventHandlers/MailService/SkipSendMailService';
 import {
-  createSkipListeningHandler,
-  createSkipPostingHandler,
+  createListenToRabbitMQHandler,
+  createPostToRabbitMQHandler,
 } from '../eventHandlers/messageBroker';
 import { createApplicationEventBus } from '../events';
 import { ApplicationEvent } from '../events/applicationEvents';
@@ -129,10 +129,10 @@ mapValue(Tokens.PopulateCallRow, callFapPopulateRow);
 
 mapValue(Tokens.EmailEventHandler, skipEmailHandler);
 
-mapValue(Tokens.PostToMessageQueue, createSkipPostingHandler());
+mapValue(Tokens.PostToMessageQueue, createPostToRabbitMQHandler());
 mapValue(Tokens.LoggingHandler, createSkipLoggingHandler());
 mapValue(Tokens.EventBus, createApplicationEventBus());
-mapValue(Tokens.ListenToMessageQueue, createSkipListeningHandler());
+mapValue(Tokens.ListenToMessageQueue, createListenToRabbitMQHandler());
 
 mapValue(Tokens.ConfigureEnvironment, configureDLSEnvironment);
 mapValue(Tokens.ConfigureLogger, () => setLogger(new ConsoleLogger()));
