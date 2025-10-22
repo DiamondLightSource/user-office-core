@@ -13,7 +13,7 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { getIn } from 'formik';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 
 import MultiMenuItem from 'components/common/MultiMenuItem';
 import { BasicComponentProps } from 'components/proposal/IBasicComponentProps';
@@ -75,7 +75,7 @@ export function QuestionaryComponentInstrumentPicker(
   >(() => processInstrumentPickerValue(answer, config));
   const fieldError = getIn(errors, id);
   const isError = getIn(touched, id) && !!fieldError;
-  const getValueWithInstrumentName = () => {
+  const getValueWithInstrumentName = useCallback(() => {
     const valueWithInstrumentName = Array.isArray(value)
       ? value.map((v: InstrumentIdAndTime) => {
           return {
@@ -95,7 +95,7 @@ export function QuestionaryComponentInstrumentPicker(
         };
 
     return valueWithInstrumentName;
-  };
+  }, [value, config.instruments]);
   const [requestTimeForInstrument, setRequestTimeForInstrument] = useState<
     Array<InstrumentIdNameAndTime> | InstrumentIdNameAndTime
   >(getValueWithInstrumentName());
@@ -107,7 +107,7 @@ export function QuestionaryComponentInstrumentPicker(
     });
 
     setRequestTimeForInstrument(getValueWithInstrumentName());
-  }, [answer, config.instruments.length]);
+  }, [answer, config, config.instruments.length, getValueWithInstrumentName]);
 
   const label = (
     <>
@@ -197,7 +197,7 @@ export function QuestionaryComponentInstrumentPicker(
                     ),
                   }}
                   data-time-request={value.instrumentId + '-time-request'}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     handleTimeInput(e.target.value, value.instrumentId);
                   }}
                 />
@@ -283,7 +283,7 @@ export function QuestionaryComponentInstrumentPicker(
           <RadioGroup
             id={id}
             name={id}
-            value={answer.value?.instrumentId ?? null}
+            value={answer.value?.instrumentId ?? ''}
             onChange={handleOnChange}
             sx={{
               flexDirection: config.instruments.length < 3 ? 'row' : 'column',
@@ -293,7 +293,7 @@ export function QuestionaryComponentInstrumentPicker(
             {config.instruments.map((instrument) => {
               return (
                 <FormControlLabel
-                  value={instrument.id}
+                  value={instrument.id.toString()}
                   key={instrument.id}
                   control={<Radio />}
                   label={instrument.name}
