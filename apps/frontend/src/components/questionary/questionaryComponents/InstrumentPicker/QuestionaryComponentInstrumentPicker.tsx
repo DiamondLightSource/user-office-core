@@ -19,6 +19,8 @@ import MultiMenuItem from 'components/common/MultiMenuItem';
 import { BasicComponentProps } from 'components/proposal/IBasicComponentProps';
 import { Answer, InstrumentPickerConfig } from 'generated/sdk';
 
+import { requestTimeLabel } from '../../../../const';
+
 /* InstrumentIdAndTime is used to save the 
 instrument id and requested time in database*/
 interface InstrumentIdAndTime {
@@ -185,7 +187,7 @@ export function QuestionaryComponentInstrumentPicker(
                   value={value.timeRequested === '0' ? '' : value.timeRequested}
                   required={config.required}
                   error={isError}
-                  label={`Request Time`}
+                  label={requestTimeLabel}
                   type="number"
                   InputProps={{
                     startAdornment: (

@@ -7,6 +7,8 @@ import Select from 'components/common/FormikUISelect';
 import TitledContainer from 'components/common/TitledContainer';
 import { InstrumentPickerConfig } from 'generated/sdk';
 
+import { requestTimeLabel } from '../../../../const';
+
 const availableVariantOptions = [
   { label: 'Radio', value: 'radio' },
   { label: 'Dropdown', value: 'dropdown' },
@@ -70,7 +72,7 @@ export const QuestionInstrumentPickerFormCommon = ({
           component={CheckboxWithLabel}
           type="checkbox"
           Label={{
-            label: 'Request time',
+            label: requestTimeLabel,
           }}
           data-cy="request-time"
         />
