@@ -131,7 +131,7 @@ export const getProposalMessageData = async (proposal: Proposal) => {
     ? maybeInstruments.map((instr) => ({
         id: instr.id,
         shortCode: instr.shortCode,
-        allocatedTime: getSecondsPerAllocationTimeUnit(
+        allocatedTime: getDayShiftAsTimeUnit(
           instr.managementTimeAllocation,
           call.allocationTimeUnit
         ),
@@ -179,18 +179,18 @@ export const getProposalMessageData = async (proposal: Proposal) => {
   return JSON.stringify(messageData);
 };
 
-const getSecondsPerAllocationTimeUnit = (
+const getDayShiftAsTimeUnit = (
   timeAllocation: number,
   unit: AllocationTimeUnits
 ) => {
   // NOTE: Default AllocationTimeUnit is 'Day'. The UI supports Days and Hours.
   switch (unit) {
     case AllocationTimeUnits.Hour:
-      return timeAllocation * 60 * 60;
+      return timeAllocation * 8;
     case AllocationTimeUnits.Week:
-      return timeAllocation * 7 * 24 * 60 * 60;
+      return timeAllocation * 7 * 8 * 60 * 60;
     default:
-      return timeAllocation * 24 * 60 * 60;
+      return timeAllocation * 8 * 60 * 60;
   }
 };
 
