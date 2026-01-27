@@ -1,0 +1,33 @@
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<p>Dear #{name},</p>
+
+<p>You have been included on a proposal at Diamond Light Source by #{proposal.principal_investigator}, #{proposal.establishment}. The proposal details are as follows:</p>
+
+<p>
+    <strong>Proposal title:</strong> #{proposal.title}<br />
+    <strong>Proposal Reference No:</strong> #{proposal.ref_num}<br />
+    <strong>Access Route:</strong> #{proposal.access_route}<br />
+    <strong>Submitted On:</strong> #{proposal.submitted_on}<br />
+    <strong>Principal Investigator:</strong> #{proposal.principal_investigator}, #{proposal.establishment}<br />
+    <strong>Alternate Contact(s):</strong> #{proposal.alternative_contacts ? proposal.alternative_contacts  : 'No AC\'s provided'}<br />
+    <strong>Co-investigator(s):</strong> #{proposal.coinvestigators}<br />
+    <strong>Requested: </strong> #{proposal.requested}<br />
+    <strong>Full Details:</strong> <a href="https://diamond.ac.uk">Click Here (Login required)</a>
+</p>
+
+<p>This proposal will be considered for the allocation period #{allocation_period}, along with the other proposals submitted by #{deadline}.</p>
+
+<p>You will not be able to edit your proposal now it has been submitted. If essential changes are needed, please contact the Diamond User Office by <a href="mailto:useroffice@diamond.ac.uk">email</a>.</p>
+<p>Your details will be stored on a database for use by Diamond Light Source.</p>
+<p>If you wish to withdraw your involvement in proposals or wish your name to be removed from the database, please contact Diamond User Office by <a href="mailto:useroffice@diamond.ac.uk">email.</a></p>
+<p>Regards,</p>
+<p>
+    | User Office <br />
+    | Diamond Light Source <br />
+    | Harwell Campus <br />
+    | Didcot <br />
+    | OX11 0DE <br />
+    | Tel: 01235 778571 <br />
+    | Email: <a href="mailto:useroffice@diamond.ac.uk">useroffice@diamond.ac.uk</a>
+</p>

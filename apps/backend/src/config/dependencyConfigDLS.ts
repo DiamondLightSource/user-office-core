@@ -1,8 +1,4 @@
-import {
-  ConsoleLogger,
-  logger,
-  setLogger,
-} from '@user-office-software/duo-logger';
+import { ConsoleLogger, setLogger } from '@user-office-software/duo-logger';
 
 import 'reflect-metadata';
 import { DataAccessUsersAuthorization } from '../auth/DataAccessUsersAuthorization';
@@ -46,14 +42,14 @@ import PostgresUserDataSource from '../datasources/postgres/UserDataSource';
 import PostgresVisitDataSource from '../datasources/postgres/VisitDataSource';
 import PostgresVisitRegistrationClaimDataSource from '../datasources/postgres/VisitRegistrationClaimDataSource';
 import PostgresWorkflowDataSource from '../datasources/postgres/WorkflowDataSource';
+import { dlsEmailHandler } from '../eventHandlers/email/dlsEmailHandler';
 import { createSkipLoggingHandler } from '../eventHandlers/logging';
-import { SkipSendMailService } from '../eventHandlers/MailService/SkipSendMailService';
+import { SMTPMailService } from '../eventHandlers/MailService/SMTPMailService';
 import {
   createListenToRabbitMQHandler,
   createPostToRabbitMQHandler,
 } from '../eventHandlers/messageBroker';
 import { createApplicationEventBus } from '../events';
-import { ApplicationEvent } from '../events/applicationEvents';
 import { FapDataColumns } from '../factory/xlsx/FapDataColumns';
 import {
   callFapPopulateRow,
@@ -65,10 +61,6 @@ import { SkipAssetRegistrar } from '../services/assetRegistrar/skip/SkipAssetReg
 import { configureDLSEnvironment } from './dls/configureDLSEnvironment';
 import { Tokens } from './Tokens';
 import { mapClass, mapValue } from './utils';
-
-async function skipEmailHandler(event: ApplicationEvent) {
-  logger.logInfo('Skip email sending', { event });
-}
 
 mapClass(Tokens.AdminDataSource, PostgresAdminDataSourceWithAutoUpgrade);
 mapClass(Tokens.CoProposerClaimDataSource, PostgresCoProposerClaimDataSource);
@@ -131,14 +123,15 @@ mapClass(Tokens.DataAccessUsersAuthorization, DataAccessUsersAuthorization);
 
 mapClass(Tokens.AssetRegistrar, SkipAssetRegistrar);
 
-mapClass(Tokens.MailService, SkipSendMailService);
+mapClass(Tokens.MailService, SMTPMailService);
 
 mapValue(Tokens.FapDataColumns, FapDataColumns);
 mapValue(Tokens.FapDataRow, getDataRow);
 mapValue(Tokens.PopulateRow, populateRow);
 mapValue(Tokens.PopulateCallRow, callFapPopulateRow);
 
-mapValue(Tokens.EmailEventHandler, skipEmailHandler);
+//mapValue(Tokens.EmailEventHandler, skipEmailHandler);
+mapValue(Tokens.EmailEventHandler, dlsEmailHandler);
 
 mapValue(Tokens.PostToMessageQueue, createPostToRabbitMQHandler());
 mapValue(Tokens.LoggingHandler, createSkipLoggingHandler());
