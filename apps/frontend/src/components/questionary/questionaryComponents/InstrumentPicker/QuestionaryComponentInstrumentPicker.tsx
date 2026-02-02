@@ -190,7 +190,7 @@ export function QuestionaryComponentInstrumentPicker(
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        {value.instrumentName}:
+                        {value.instrumentName + ' Shift(s)'};
                       </InputAdornment>
                     ),
                   }}
