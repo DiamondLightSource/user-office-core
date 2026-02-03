@@ -3,7 +3,9 @@ import { container } from 'tsyringe';
 
 import { Tokens } from '../../config/Tokens';
 import { CallDataSource } from '../../datasources/CallDataSource';
+import { InstrumentDataSource } from '../../datasources/InstrumentDataSource';
 import { InviteDataSource } from '../../datasources/InviteDataSource';
+import { QuestionaryDataSource } from '../../datasources/QuestionaryDataSource';
 import { UserDataSource } from '../../datasources/UserDataSource';
 import { ApplicationEvent } from '../../events/applicationEvents';
 import { Event } from '../../events/event.enum';
@@ -31,24 +33,72 @@ export async function dlsEmailHandler(event: ApplicationEvent) {
   const inviteDataSource = container.resolve<InviteDataSource>(
     Tokens.InviteDataSource
   );
+  const instrumentSource = container.resolve<InstrumentDataSource>(
+    Tokens.InstrumentDataSource
+  );
+  const questionaryDataSource = container.resolve<QuestionaryDataSource>(
+    Tokens.QuestionaryDataSource
+  );
 
   switch (event.type) {
     case Event.PROPOSAL_SUBMITTED: {
       const principalInvestigator = await userDataSource.getUser(
         event.proposal.proposerId
       );
+      if (!principalInvestigator) {
+        return;
+      }
+
       const participants = await userDataSource.getProposalUsersFull(
         event.proposal.primaryKey
       );
+
       const call = await callDataSource.getCall(event.proposal.callId);
+      if (!call) {
+        return;
+      }
 
       const workflow = await callDataSource.getProposalWorkflowByCall(
         event.proposal.callId
       );
 
-      if (!principalInvestigator) {
-        return;
-      }
+      const instruments = await instrumentSource.getInstrumentsByProposalPk(
+        event.proposal.primaryKey
+      );
+
+      // Postgres implementation doesn't match interface - impliementation wants questionaryId, not proposalId
+      const answer = await questionaryDataSource.getAnswer(
+        event.proposal.questionaryId,
+        'instrument_picker'
+      );
+
+      (
+        answer?.answer as {
+          value: { instrumentId: number; timeRequested: number }[];
+        }
+      ).value.forEach((instrumentAnswer: any) => {
+        const instrument = instruments.find(
+          (inst) => inst.id === Number(instrumentAnswer.instrumentId)
+        );
+        if (instrument) {
+          instrument.managementTimeAllocation =
+            instrumentAnswer.timeRequested || 0;
+        }
+      });
+
+      const shortDateFormat = new Intl.DateTimeFormat('en-GB', {
+        month: 'short',
+        year: 'numeric',
+      });
+
+      const longDateFormat = new Intl.DateTimeFormat('en-GB', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
+
+      const allocationPeriod = `${shortDateFormat.format(call.startCycle)} - ${shortDateFormat.format(call.endCycle)}`;
 
       const options: EmailSettings = {
         content: {
@@ -58,26 +108,31 @@ export async function dlsEmailHandler(event: ApplicationEvent) {
           name: '',
           proposal: {
             title: event.proposal.title,
-            ref_num: event.proposal.proposalId,
-            submitted_on: event.proposal.submittedDate!.toLocaleString(),
-            access_route: workflow?.name || 'N/A',
-            principal_investigator:
+            refNum: event.proposal.proposalId,
+            submittedOn: event.proposal.submittedDate!.toLocaleString(),
+            accessRoute: workflow?.name || 'N/A',
+            principalInvestigator:
               principalInvestigator.preferredname +
               ' ' +
               principalInvestigator.lastname,
             establishment: principalInvestigator.institution,
-            alternative_contacts: '',
+            alternativeContacts: '',
             coinvestigators: participants.map(
               (partipant) => `${partipant.preferredname} ${partipant.lastname} `
             ),
-            requested:
-              'MX: Macromolecular Crystallography I03, I04, I04-1 (1 shifts)', // Need to find out what this string is made up of (call instruments and their shifts?)
+            requested: instruments
+              .map((instrument) => {
+                return `${instrument.name}: ${instrument.description} ${instrument.managementTimeAllocation} ${call.allocationTimeUnit}${instrument.managementTimeAllocation > 1 ? 's' : ''}`;
+              })
+              .join(', '),
           },
-          allocation_period: 'Sept 2026 - Mar 2027', // Need to find out where to get this
-          deadline: call?.endCall,
+          allocationPeriod: allocationPeriod,
+          deadline: longDateFormat.format(call.endCall),
         },
         recipients: [],
       };
+
+      participants.push(principalInvestigator); // Ensure PI also gets an email
 
       for (const participant of participants) {
         if (!participant.email) {
