@@ -1,6 +1,7 @@
 import { container } from 'tsyringe';
 
 import { AdminDataSource } from '../../datasources/AdminDataSource';
+import { FeatureId } from '../../models/Feature';
 import { SettingsId } from '../../models/Settings';
 import { setTimezone, setDateTimeFormats } from '../setTimezoneAndFormat';
 import { Tokens } from '../Tokens';
@@ -70,8 +71,66 @@ async function setDLSColourTheme() {
   });
 }
 
+async function enableDefaultDLSFeatures() {
+  const db = container.resolve<AdminDataSource>(Tokens.AdminDataSource);
+
+  await db.setFeatures(
+    [
+      FeatureId.TAGS,
+      FeatureId.DATA_ACCESS_USERS,
+      FeatureId.STFC_IDLE_TIMER,
+      FeatureId.TECHNIQUE_PROPOSALS,
+      FeatureId.USER_SEARCH_FILTER,
+      FeatureId.CONFLICT_OF_INTEREST_WARNING,
+      FeatureId.EMAIL_INVITE,
+      FeatureId.INSTRUMENT_MANAGEMENT,
+      FeatureId.TECHNICAL_REVIEW,
+      FeatureId.USER_MANAGEMENT,
+      FeatureId.OAUTH,
+      FeatureId.FAP_REVIEW,
+      FeatureId.VISIT_MANAGEMENT,
+      FeatureId.SHIPPING,
+      FeatureId.SCHEDULER,
+      FeatureId.RISK_ASSESSMENT,
+      FeatureId.EXPERIMENT_SAFETY_REVIEW,
+    ],
+    true
+  );
+
+  await db.setFeatures(
+    [FeatureId.EMAIL_SEARCH, FeatureId.EMAIL_INVITE_LEGACY],
+    false
+  );
+
+  await db.updateSettings({
+    settingsId: SettingsId.DISPLAY_PRIVACY_STATEMENT_LINK,
+    settingsValue: 'true',
+  });
+
+  await db.updateSettings({
+    settingsId: SettingsId.DEFAULT_INST_SCI_REVIEWER_FILTER,
+    settingsValue: 'ME',
+  });
+
+  await db.updateSettings({
+    settingsId: SettingsId.DEFAULT_INST_SCI_STATUS_FILTER,
+    settingsValue: 'FEASIBILITY_REVIEW',
+  });
+
+  await db.updateSettings({
+    settingsId: SettingsId.INVITE_VALIDITY_PERIOD_DAYS,
+    settingsValue: '365',
+  });
+
+  await db.updateSettings({
+    settingsId: SettingsId.DISPLAY_FAQ_LINK,
+    settingsValue: 'true',
+  });
+}
+
 export async function configureDLSEnvironment() {
   await setDLSColourTheme();
+  await enableDefaultDLSFeatures();
   await setTimezone();
   await setDateTimeFormats();
   await updateOIDCSettings();
