@@ -77,21 +77,17 @@ async function enableDefaultDLSFeatures() {
   await db.setFeatures(
     [
       FeatureId.PREGENERATED_PROPOSAL_PDF,
-      FeatureId.SHIPPING,
-      FeatureId.VISIT_MANAGEMENT, // ?
       FeatureId.STFC_IDLE_TIMER,
-      FeatureId.TECHNIQUE_PROPOSALS, // ?
-      FeatureId.TAGS, // ?
       FeatureId.OAUTH,
-      FeatureId.RISK_ASSESSMENT, // ?
-      FeatureId.INSTRUMENT_MANAGEMENT, // ?
-      FeatureId.TECHNICAL_REVIEW, // ?
-      FeatureId.USER_MANAGEMENT, // ?
-      FeatureId.FAP_REVIEW, // ?
-      FeatureId.USER_SEARCH_FILTER, // ?
-      FeatureId.CONFLICT_OF_INTEREST_WARNING, // ?
-      FeatureId.EXPERIMENT_SAFETY_REVIEW, // ?
-      FeatureId.DATA_ACCESS_USERS, // ?
+      FeatureId.RISK_ASSESSMENT,
+      FeatureId.INSTRUMENT_MANAGEMENT,
+      FeatureId.TECHNICAL_REVIEW,
+      FeatureId.USER_MANAGEMENT,
+      FeatureId.FAP_REVIEW,
+      FeatureId.USER_SEARCH_FILTER,
+      FeatureId.CONFLICT_OF_INTEREST_WARNING,
+      FeatureId.EXPERIMENT_SAFETY_REVIEW,
+      FeatureId.DATA_ACCESS_USERS,
       FeatureId.EMAIL_INVITE,
     ],
     true
@@ -102,6 +98,10 @@ async function enableDefaultDLSFeatures() {
       FeatureId.EMAIL_SEARCH,
       FeatureId.EMAIL_INVITE_LEGACY,
       FeatureId.SCHEDULER,
+      FeatureId.SHIPPING,
+      FeatureId.VISIT_MANAGEMENT,
+      FeatureId.TECHNIQUE_PROPOSALS,
+      FeatureId.TAGS,
     ],
     false
   );
