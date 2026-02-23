@@ -76,29 +76,33 @@ async function enableDefaultDLSFeatures() {
 
   await db.setFeatures(
     [
-      FeatureId.TAGS,
-      FeatureId.DATA_ACCESS_USERS,
-      FeatureId.STFC_IDLE_TIMER,
-      FeatureId.TECHNIQUE_PROPOSALS,
-      FeatureId.USER_SEARCH_FILTER,
-      FeatureId.CONFLICT_OF_INTEREST_WARNING,
-      FeatureId.EMAIL_INVITE,
-      FeatureId.INSTRUMENT_MANAGEMENT,
-      FeatureId.TECHNICAL_REVIEW,
-      FeatureId.USER_MANAGEMENT,
-      FeatureId.OAUTH,
-      FeatureId.FAP_REVIEW,
-      FeatureId.VISIT_MANAGEMENT,
+      FeatureId.PREGENERATED_PROPOSAL_PDF,
       FeatureId.SHIPPING,
-      FeatureId.SCHEDULER,
-      FeatureId.RISK_ASSESSMENT,
-      FeatureId.EXPERIMENT_SAFETY_REVIEW,
+      FeatureId.VISIT_MANAGEMENT, // ?
+      FeatureId.STFC_IDLE_TIMER,
+      FeatureId.TECHNIQUE_PROPOSALS, // ?
+      FeatureId.TAGS, // ?
+      FeatureId.OAUTH,
+      FeatureId.RISK_ASSESSMENT, // ?
+      FeatureId.INSTRUMENT_MANAGEMENT, // ?
+      FeatureId.TECHNICAL_REVIEW, // ?
+      FeatureId.USER_MANAGEMENT, // ?
+      FeatureId.FAP_REVIEW, // ?
+      FeatureId.USER_SEARCH_FILTER, // ?
+      FeatureId.CONFLICT_OF_INTEREST_WARNING, // ?
+      FeatureId.EXPERIMENT_SAFETY_REVIEW, // ?
+      FeatureId.DATA_ACCESS_USERS, // ?
+      FeatureId.EMAIL_INVITE,
     ],
     true
   );
 
   await db.setFeatures(
-    [FeatureId.EMAIL_SEARCH, FeatureId.EMAIL_INVITE_LEGACY],
+    [
+      FeatureId.EMAIL_SEARCH,
+      FeatureId.EMAIL_INVITE_LEGACY,
+      FeatureId.SCHEDULER,
+    ],
     false
   );
 
@@ -119,7 +123,7 @@ async function enableDefaultDLSFeatures() {
 
   await db.updateSettings({
     settingsId: SettingsId.INVITE_VALIDITY_PERIOD_DAYS,
-    settingsValue: '365',
+    settingsValue: '180',
   });
 
   await db.updateSettings({
