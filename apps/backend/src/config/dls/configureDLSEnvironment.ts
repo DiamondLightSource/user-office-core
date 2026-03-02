@@ -7,10 +7,19 @@ import { setTimezone, setDateTimeFormats } from '../setTimezoneAndFormat';
 import { Tokens } from '../Tokens';
 import { updateOIDCSettings } from '../updateOIDCSettings';
 
+function getUASInstance() {
+  let instance = process.env.UAS_INSTANCE || 'http://uas.diamond.ac.uk';
+  if (instance.endsWith('/')) {
+    instance = instance.slice(0, -1);
+  }
+
+  return instance;
+}
+
 async function setDLSColourTheme() {
   const db = container.resolve<AdminDataSource>(Tokens.AdminDataSource);
 
-  //await db.waitForDBUpgrade();
+  await db.waitForDBUpgrade();
 
   await db.updateSettings({
     settingsId: SettingsId.PALETTE_PRIMARY_DARK,
@@ -130,12 +139,19 @@ async function enableDefaultDLSFeatures() {
     settingsId: SettingsId.DISPLAY_FAQ_LINK,
     settingsValue: 'true',
   });
+
+  await db.updateSettings({
+    settingsId: SettingsId.PROFILE_PAGE_LINK,
+    settingsValue: getUASInstance() + '/uas/#PersonalDetailsPlace:',
+  });
 }
 
-export async function configureDLSEnvironment() {
+async function configureDLSEnvironment() {
   await setDLSColourTheme();
   await enableDefaultDLSFeatures();
   await setTimezone();
   await setDateTimeFormats();
   await updateOIDCSettings();
 }
+
+export { configureDLSEnvironment, getUASInstance };

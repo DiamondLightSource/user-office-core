@@ -1,6 +1,7 @@
 import { logger } from '@user-office-software/duo-logger';
 import { container } from 'tsyringe';
 
+import { getUASInstance } from '../../config/dls/configureDLSEnvironment';
 import { Tokens } from '../../config/Tokens';
 import { CallDataSource } from '../../datasources/CallDataSource';
 import { InstrumentDataSource } from '../../datasources/InstrumentDataSource';
@@ -76,7 +77,7 @@ export async function dlsEmailHandler(event: ApplicationEvent) {
         answer?.answer as {
           value: { instrumentId: number; timeRequested: number }[];
         }
-      ).value.forEach((instrumentAnswer: any) => {
+      )?.value.forEach((instrumentAnswer: any) => {
         const instrument = instruments.find(
           (inst) => inst.id === Number(instrumentAnswer.instrumentId)
         );
@@ -128,6 +129,7 @@ export async function dlsEmailHandler(event: ApplicationEvent) {
           },
           allocationPeriod: allocationPeriod,
           deadline: longDateFormat.format(call.endCall),
+          uas_instance: getUASInstance(),
         },
         recipients: [],
       };
@@ -196,6 +198,7 @@ export async function dlsEmailHandler(event: ApplicationEvent) {
           },
           substitution_data: {
             sender: inviter.preferredname + ' ' + inviter.lastname,
+            uas_instance: getUASInstance(),
           },
           recipients: [{ address: invite.email }],
         };
