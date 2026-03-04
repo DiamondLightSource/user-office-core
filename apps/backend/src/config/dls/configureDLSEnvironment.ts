@@ -8,7 +8,7 @@ import { Tokens } from '../Tokens';
 import { updateOIDCSettings } from '../updateOIDCSettings';
 
 function getUASInstance() {
-  let instance = process.env.UAS_INSTANCE || 'http://uas.diamond.ac.uk';
+  let instance = process.env.UAS_INSTANCE || 'http://uas.diamond.ac.uk/uas';
   if (instance.endsWith('/')) {
     instance = instance.slice(0, -1);
   }
