@@ -142,7 +142,7 @@ async function enableDefaultDLSFeatures() {
 
   await db.updateSettings({
     settingsId: SettingsId.PROFILE_PAGE_LINK,
-    settingsValue: getUASInstance() + '/uas/#PersonalDetailsPlace:',
+    settingsValue: getUASInstance() + '/#PersonalDetailsPlace:',
   });
 }
 

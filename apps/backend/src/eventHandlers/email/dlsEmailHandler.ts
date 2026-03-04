@@ -101,6 +101,11 @@ export async function dlsEmailHandler(event: ApplicationEvent) {
 
       const allocationPeriod = `${shortDateFormat.format(call.startCycle)} - ${shortDateFormat.format(call.endCycle)}`;
 
+      let baseURL = process.env.BASE_URL || '';
+      if (baseURL.endsWith('/')) {
+        baseURL = baseURL.slice(0, -1);
+      }
+
       const options: EmailSettings = {
         content: {
           template_id: 'proposal-submitted',
@@ -108,6 +113,7 @@ export async function dlsEmailHandler(event: ApplicationEvent) {
         substitution_data: {
           name: '',
           proposal: {
+            id: event.proposal.primaryKey,
             title: event.proposal.title,
             refNum: event.proposal.proposalId,
             submittedOn: event.proposal.submittedDate!.toLocaleString(),
@@ -129,7 +135,7 @@ export async function dlsEmailHandler(event: ApplicationEvent) {
           },
           allocationPeriod: allocationPeriod,
           deadline: longDateFormat.format(call.endCall),
-          uas_instance: getUASInstance(),
+          uos_instance: process.env.BASE_URL,
         },
         recipients: [],
       };
