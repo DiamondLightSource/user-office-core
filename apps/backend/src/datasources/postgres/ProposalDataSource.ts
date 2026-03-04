@@ -641,18 +641,19 @@ export default class PostgresProposalDataSource implements ProposalDataSource {
       .orderBy('proposal_pk', 'desc')
       .modify((query) => {
         if (filter?.text) {
+          const cleanText = filter.text.trim();
           query.andWhere((qb) =>
             qb
-              .orWhereRaw('title ILIKE ?', `%${filter.text}%`)
-              .orWhereRaw('proposal_id ILIKE ?', `%${filter.text}%`)
-              .orWhereRaw('proposal_status_name ILIKE ?', `%${filter.text}%`)
-              .orWhereRaw('users.email ILIKE ?', `%${filter.text}%`)
-              .orWhereRaw('users.firstname ILIKE ?', `%${filter.text}%`)
-              .orWhereRaw('users.lastname ILIKE ?', `%${filter.text}%`)
+              .orWhereRaw('title ILIKE ?', `%${cleanText}%`)
+              .orWhereRaw('proposal_id ILIKE ?', `%${cleanText}%`)
+              .orWhereRaw('proposal_status_name ILIKE ?', `%${cleanText}%`)
+              .orWhereRaw('users.email ILIKE ?', `%${cleanText}%`)
+              .orWhereRaw('users.firstname ILIKE ?', `%${cleanText}%`)
+              .orWhereRaw('users.lastname ILIKE ?', `%${cleanText}%`)
               .orWhereJsonFieldLikeEscaped(
                 'instruments',
                 'name',
-                `${filter.text}`
+                `${cleanText}`
               )
           );
         }
