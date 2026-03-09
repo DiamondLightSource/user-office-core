@@ -86,7 +86,6 @@ async function enableDefaultDLSFeatures() {
   await db.setFeatures(
     [
       FeatureId.PREGENERATED_PROPOSAL_PDF,
-      FeatureId.STFC_IDLE_TIMER,
       FeatureId.OAUTH,
       FeatureId.RISK_ASSESSMENT,
       FeatureId.INSTRUMENT_MANAGEMENT,
@@ -96,7 +95,6 @@ async function enableDefaultDLSFeatures() {
       FeatureId.USER_SEARCH_FILTER,
       FeatureId.CONFLICT_OF_INTEREST_WARNING,
       FeatureId.EXPERIMENT_SAFETY_REVIEW,
-      FeatureId.DATA_ACCESS_USERS,
       FeatureId.EMAIL_INVITE,
     ],
     true
@@ -111,6 +109,8 @@ async function enableDefaultDLSFeatures() {
       FeatureId.VISIT_MANAGEMENT,
       FeatureId.TECHNIQUE_PROPOSALS,
       FeatureId.TAGS,
+      FeatureId.STFC_IDLE_TIMER,
+      FeatureId.DATA_ACCESS_USERS,
     ],
     false
   );
