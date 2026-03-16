@@ -2,7 +2,7 @@ import { ConsoleLogger, setLogger } from '@user-office-software/duo-logger';
 
 import 'reflect-metadata';
 import { DataAccessUsersAuthorization } from '../auth/DataAccessUsersAuthorization';
-import { OAuthAuthorization } from '../auth/OAuthAuthorization';
+import { DlsUserAuthorization } from '../auth/DlsUserAuthorization';
 import { ProposalAuthorization } from '../auth/ProposalAuthorization';
 import { VisitAuthorization } from '../auth/VisitAuthorization';
 import { VisitRegistrationAuthorization } from '../auth/VisitRegistrationAuthorization';
@@ -116,7 +116,7 @@ mapClass(Tokens.StatusDataSource, PostgresStatusDataSource);
 mapClass(Tokens.ExperimentDataSource, PostgresExperimentDataSource);
 mapClass(Tokens.TagDataSource, PostgresTagDataSource);
 
-mapClass(Tokens.UserAuthorization, OAuthAuthorization);
+mapClass(Tokens.UserAuthorization, DlsUserAuthorization);
 mapClass(Tokens.ProposalAuthorization, ProposalAuthorization);
 mapClass(Tokens.DataAccessUsersAuthorization, DataAccessUsersAuthorization);
 
