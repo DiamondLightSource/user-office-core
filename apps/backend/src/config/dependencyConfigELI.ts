@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 
 import { DataAccessUsersAuthorization } from '../auth/DataAccessUsersAuthorization';
-import { OAuthAuthorization } from '../auth/OAuthAuthorization';
+import { ELIUserAuthorization } from '../auth/ELIUserAuthorization';
 import { ProposalAuthorization } from '../auth/ProposalAuthorization';
 import { VisitAuthorization } from '../auth/VisitAuthorization';
 import { VisitRegistrationAuthorization } from '../auth/VisitRegistrationAuthorization';
@@ -9,6 +9,7 @@ import { PostgresAdminDataSourceWithAutoUpgrade } from '../datasources/postgres/
 import PostgresCallDataSource from '../datasources/postgres/CallDataSource';
 import PostgresCoProposerClaimDataSource from '../datasources/postgres/CoProposerClaimDataSource';
 import PostgresDataAccessUsersDataSource from '../datasources/postgres/DataAccessUsersDataSource';
+import PostgresEmailTemplateDataSource from '../datasources/postgres/EmailTemplateDataSource';
 import PostgresEventLogsDataSource from '../datasources/postgres/EventLogsDataSource';
 import PostgresExperimentDataSource from '../datasources/postgres/ExperimentDataSource';
 import PostgresExperimentSafetyPdfTemplateDataSource from '../datasources/postgres/ExperimentSafetyPdfTemplateDataSource';
@@ -115,9 +116,10 @@ mapClass(Tokens.StatusActionsLogsDataSource, StatusActionsLogsDataSource);
 mapClass(Tokens.WorkflowDataSource, PostgresWorkflowDataSource);
 mapClass(Tokens.StatusDataSource, PostgresStatusDataSource);
 mapClass(Tokens.TagDataSource, PostgresTagDataSource);
+mapClass(Tokens.EmailTemplateDataSource, PostgresEmailTemplateDataSource);
 
 mapClass(Tokens.ExperimentDataSource, PostgresExperimentDataSource);
-mapClass(Tokens.UserAuthorization, OAuthAuthorization);
+mapClass(Tokens.UserAuthorization, ELIUserAuthorization);
 mapClass(Tokens.ProposalAuthorization, ProposalAuthorization);
 mapClass(Tokens.DataAccessUsersAuthorization, DataAccessUsersAuthorization);
 

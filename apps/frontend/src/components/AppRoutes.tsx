@@ -1,7 +1,8 @@
-import i18n from 'i18n';
 import React, { lazy, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
+
+import i18n from 'i18n';
 
 import { FeatureContext } from 'context/FeatureContextProvider';
 import { UserContext } from 'context/UserContextProvider';
@@ -117,6 +118,7 @@ const ImportUnitsPage = lazy(() => import('./unit/ImportUnitsPage'));
 const PeoplePage = lazy(() => import('./user/PeoplePage'));
 const ProfilePage = lazy(() => import('./user/ProfilePage'));
 const UserPage = lazy(() => import('./user/UserPage'));
+const EmailTemplatePage = lazy(() => import('./template/EmailTemplatePage'));
 
 const PrivateOutlet = () => (
   <UserContext.Consumer>
@@ -126,7 +128,7 @@ const PrivateOutlet = () => (
         const redirectPath = queryParams.size
           ? `${pathName}?${queryParams.toString()}`
           : pathName;
-        localStorage.redirectPath = redirectPath;
+        localStorage.setItem('redirectPath', redirectPath);
 
         return <Navigate to="/external-auth" />;
       }
@@ -454,6 +456,15 @@ const AppRoutes = () => {
             <TitledRoute
               title="Shipment Templates"
               element={<ShipmentTemplatesPage />}
+            />
+          }
+        />
+        <Route
+          path="/EmailTemplates"
+          element={
+            <TitledRoute
+              title="Email Templates"
+              element={<EmailTemplatePage />}
             />
           }
         />
