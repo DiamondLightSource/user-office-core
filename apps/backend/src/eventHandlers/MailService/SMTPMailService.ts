@@ -13,7 +13,7 @@ import { AdminDataSource } from '../../datasources/AdminDataSource';
 import { SettingsId } from '../../models/Settings';
 import { isProduction } from '../../utils/helperFunctions';
 import EmailSettings from './EmailSettings';
-import { DLSEmailTemplate, MailService, SendMailResults } from './MailService';
+import { MailService, STFCEmailTemplate, SendMailResults } from './MailService';
 import { ResultsPromise } from './SparkPost';
 
 export class SMTPMailService extends MailService {
@@ -174,16 +174,52 @@ export class SMTPMailService extends MailService {
     });
   }
 
-  async getEmailTemplates(): ResultsPromise<DLSEmailTemplate[]> {
+  async getEmailTemplates(): ResultsPromise<STFCEmailTemplate[]> {
     return {
       results: [
         {
-          id: 'proposal-submitted',
-          name: 'Proposal Submitted email',
+          id: 'clf-proposal-submitted-pi',
+          name: 'CLF PI Co-I Submission Email',
         },
         {
-          id: 'co-proposer-invite',
-          name: 'Invite Co-Proposer email',
+          id: 'isis-proposal-submitted-pi',
+          name: 'ISIS PI Co-I Submission Email',
+        },
+        {
+          id: 'isis-rapid-proposal-submitted-pi',
+          name: 'ISIS Rapid PI Co-I Submission Email',
+        },
+        {
+          id: 'isis-rapid-proposal-submitted-uo',
+          name: 'ISIS Rapid User Office Submission Email',
+        },
+        {
+          id: 'xpress-proposal-submitted-pi',
+          name: 'ISIS Xpress PI Co-I Submission Email',
+        },
+        {
+          id: 'xpress-proposal-submitted-sc',
+          name: 'ISIS Xpress Scientist Submission Email',
+        },
+        {
+          id: 'xpress-proposal-under-review',
+          name: 'ISIS Xpress PI Co-I Under Review Email',
+        },
+        {
+          id: 'xpress-proposal-approved',
+          name: 'ISIS Xpress PI Co-I Approval Email',
+        },
+        {
+          id: 'xpress-proposal-sra',
+          name: 'ISIS Xpress SRA Request Email',
+        },
+        {
+          id: 'xpress-proposal-unsuccessful',
+          name: 'ISIS Xpress PI Co-I Reject Email',
+        },
+        {
+          id: 'xpress-proposal-finished',
+          name: 'ISIS Xpress PI Co-I Finish Email',
         },
       ],
     };
