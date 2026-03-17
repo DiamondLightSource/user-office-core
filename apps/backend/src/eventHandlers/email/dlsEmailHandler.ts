@@ -204,6 +204,8 @@ export async function dlsEmailHandler(event: ApplicationEvent) {
           },
           substitution_data: {
             sender: inviter.preferredname + ' ' + inviter.lastname,
+            redeem_code: invite.code,
+            uos_instance: process.env.BASE_URL,
             uas_instance: getUASInstance(),
           },
           recipients: [{ address: invite.email }],
