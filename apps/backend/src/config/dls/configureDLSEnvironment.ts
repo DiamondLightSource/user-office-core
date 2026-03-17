@@ -103,7 +103,6 @@ async function enableDefaultDLSFeatures() {
   await db.setFeatures(
     [
       FeatureId.EMAIL_SEARCH,
-      FeatureId.EMAIL_INVITE_LEGACY,
       FeatureId.SCHEDULER,
       FeatureId.SHIPPING,
       FeatureId.VISIT_MANAGEMENT,
