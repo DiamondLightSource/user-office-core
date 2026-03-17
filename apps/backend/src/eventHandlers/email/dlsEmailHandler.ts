@@ -4,6 +4,7 @@ import { container } from 'tsyringe';
 import { getUASInstance } from '../../config/dls/configureDLSEnvironment';
 import { Tokens } from '../../config/Tokens';
 import { CallDataSource } from '../../datasources/CallDataSource';
+import { EmailTemplateDataSource } from '../../datasources/EmailTemplateDataSource';
 import { InstrumentDataSource } from '../../datasources/InstrumentDataSource';
 import { InviteDataSource } from '../../datasources/InviteDataSource';
 import { QuestionaryDataSource } from '../../datasources/QuestionaryDataSource';
@@ -13,6 +14,7 @@ import { Event } from '../../events/event.enum';
 import { EventBus } from '../../events/eventBus';
 import EmailSettings from '../MailService/EmailSettings';
 import { MailService } from '../MailService/MailService';
+import { EmailTemplateId } from './emailTemplateId';
 
 export async function dlsEmailHandler(event: ApplicationEvent) {
   const userDataSource = container.resolve<UserDataSource>(
@@ -39,6 +41,10 @@ export async function dlsEmailHandler(event: ApplicationEvent) {
   );
   const questionaryDataSource = container.resolve<QuestionaryDataSource>(
     Tokens.QuestionaryDataSource
+  );
+
+  const emailTemplateDataSource = container.resolve<EmailTemplateDataSource>(
+    Tokens.EmailTemplateDataSource
   );
 
   switch (event.type) {
@@ -106,9 +112,20 @@ export async function dlsEmailHandler(event: ApplicationEvent) {
         baseURL = baseURL.slice(0, -1);
       }
 
+      const template = EmailTemplateId.PROPOSAL_SUBMITTED;
+      const emailTemplate =
+        await emailTemplateDataSource.getEmailTemplateByName(template);
+      if (!emailTemplate) {
+        logger.logError('Email template not found', {
+          template,
+        });
+
+        return;
+      }
+
       const options: EmailSettings = {
         content: {
-          template_id: 'proposal-submitted',
+          template: emailTemplate.id.toString(),
         },
         substitution_data: {
           name: '',
@@ -178,7 +195,17 @@ export async function dlsEmailHandler(event: ApplicationEvent) {
       return;
     }
     case Event.PROPOSAL_CO_PROPOSER_INVITES_UPDATED: {
-      const templateId = 'co-proposer-invite';
+      const template = 'co-proposer-invite';
+      const emailTemplate =
+        await emailTemplateDataSource.getEmailTemplateByName(template);
+      if (!emailTemplate) {
+        logger.logError('Email template not found', {
+          template,
+        });
+
+        return;
+      }
+
       const invites = event.array;
 
       for (const invite of invites) {
@@ -200,7 +227,7 @@ export async function dlsEmailHandler(event: ApplicationEvent) {
 
         const options: EmailSettings = {
           content: {
-            template_id: templateId,
+            template: emailTemplate.id.toString(),
           },
           substitution_data: {
             sender: inviter.preferredname + ' ' + inviter.lastname,
@@ -222,7 +249,7 @@ export async function dlsEmailHandler(event: ApplicationEvent) {
             await inviteDataSource.update({
               id: invite.id,
               isEmailSent: true,
-              templateId: templateId,
+              templateId: template,
             });
 
             await eventBus.publish({

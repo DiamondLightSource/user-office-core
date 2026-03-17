@@ -10,6 +10,7 @@ import { PostgresAdminDataSourceWithAutoUpgrade } from '../datasources/postgres/
 import PostgresCallDataSource from '../datasources/postgres/CallDataSource';
 import PostgresCoProposerClaimDataSource from '../datasources/postgres/CoProposerClaimDataSource';
 import PostgresDataAccessUsersDataSource from '../datasources/postgres/DataAccessUsersDataSource';
+import PostgresEmailTemplateDataSource from '../datasources/postgres/EmailTemplateDataSource';
 import PostgresEventLogsDataSource from '../datasources/postgres/EventLogsDataSource';
 import PostgresExperimentDataSource from '../datasources/postgres/ExperimentDataSource';
 import PostgresExperimentSafetyPdfTemplateDataSource from '../datasources/postgres/ExperimentSafetyPdfTemplateDataSource';
@@ -130,6 +131,7 @@ mapValue(Tokens.PopulateCallRow, callFapPopulateRow);
 
 //mapValue(Tokens.EmailEventHandler, skipEmailHandler);
 mapValue(Tokens.EmailEventHandler, dlsEmailHandler);
+mapClass(Tokens.EmailTemplateDataSource, PostgresEmailTemplateDataSource);
 
 mapValue(Tokens.PostToMessageQueue, createPostToRabbitMQHandler());
 mapValue(Tokens.LoggingHandler, createSkipLoggingHandler());
