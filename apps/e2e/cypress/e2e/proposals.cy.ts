@@ -74,7 +74,6 @@ context('Proposal tests', () => {
     technicalReviewTemplateId: initialDBData.technicalReviewTemplate.id,
     allocationTimeUnit: AllocationTimeUnits.DAY,
     cycleComment: faker.lorem.word(10),
-    surveyComment: faker.lorem.word(10),
   };
 
   const createTopicAndQuestionToExistingTemplate = () => {
@@ -192,6 +191,9 @@ context('Proposal tests', () => {
         createdProposalId
       );
       cy.get('[data-cy="questionary-details-view"]').contains(newProposalTitle);
+      cy.get('[data-cy="data-access-users-list"]').contains(
+        initialDBData.users.user3.lastName
+      );
     });
 
     it('Copy to clipboard should work for Proposal ID', () => {

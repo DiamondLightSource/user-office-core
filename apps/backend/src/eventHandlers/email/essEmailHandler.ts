@@ -1,7 +1,9 @@
 import { logger } from '@user-office-software/duo-logger';
+import { DateTime } from 'luxon';
 import { container } from 'tsyringe';
 
 import { Tokens } from '../../config/Tokens';
+import { AdminDataSource } from '../../datasources/AdminDataSource';
 import { CallDataSource } from '../../datasources/CallDataSource';
 import { CoProposerClaimDataSource } from '../../datasources/CoProposerClaimDataSource';
 import { FapDataSource } from '../../datasources/FapDataSource';
@@ -14,23 +16,28 @@ import { Event } from '../../events/event.enum';
 import { EventBus } from '../../events/eventBus';
 import { Invite } from '../../models/Invite';
 import { ProposalEndStatus } from '../../models/Proposal';
+import { SettingsId } from '../../models/Settings';
 import { BasicUserDetails } from '../../models/User';
 import EmailSettings from '../MailService/EmailSettings';
 import { MailService } from '../MailService/MailService';
+import { EmailTemplateId } from './emailTemplateId';
 
-export enum EmailTemplateId {
-  CO_PROPOSER_INVITE_ACCEPTED = 'co-proposer-invite-accepted',
-  PROPOSAL_SUBMITTED = 'proposal-submitted',
-  ACCEPTED_PROPOSAL = 'Accepted-Proposal',
-  REJECTED_PROPOSAL = 'Rejected-Proposal',
-  RESERVED_PROPOSAL = 'Reserved-Proposal',
-  REVIEW_REMINDER = 'review-reminder',
-  VISIT_REGISTRATION_APPROVED = 'visit-registration-approved',
-  VISIT_REGISTRATION_CANCELLED = 'visit-registration-cancelled',
-  USER_OFFICE_REGISTRATION_INVITATION_CO_PROPOSER = 'user-office-registration-invitation-co-proposer',
-  USER_OFFICE_REGISTRATION_INVITATION_VISIT_REGISTRATION = 'user-office-registration-invitation-visit-registration',
-  USER_OFFICE_REGISTRATION_INVITATION_REVIEWER = 'user-office-registration-invitation-reviewer',
-  USER_OFFICE_REGISTRATION_INVITATION_USER = 'user-office-registration-invitation-user',
+function formatEmailDate(
+  value: Date | null,
+  format = 'dd-MM-yyyy HH:mm',
+  timezone = process.env.TZ ?? 'Europe/Stockholm'
+) {
+  if (!value) {
+    return '';
+  }
+
+  const dateTime = DateTime.fromJSDate(value, { zone: timezone });
+
+  if (!dateTime.isValid) {
+    return String(value);
+  }
+
+  return `${dateTime.toFormat(format)} ${dateTime.setLocale('en-GB').toFormat('ZZZZ')}`;
 }
 
 export async function essEmailHandler(event: ApplicationEvent) {
@@ -120,7 +127,7 @@ export async function essEmailHandler(event: ApplicationEvent) {
         mailService
           .sendMail({
             content: {
-              template_id: EmailTemplateId.CO_PROPOSER_INVITE_ACCEPTED,
+              template: EmailTemplateId.CO_PROPOSER_INVITE_ACCEPTED,
             },
             substitution_data: {
               piPreferredname: principalInvestigator.preferredname,
@@ -164,7 +171,7 @@ export async function essEmailHandler(event: ApplicationEvent) {
 
       const options: EmailSettings = {
         content: {
-          template_id: EmailTemplateId.PROPOSAL_SUBMITTED,
+          template: EmailTemplateId.PROPOSAL_SUBMITTED,
         },
         substitution_data: {
           piPreferredname: principalInvestigator.preferredname,
@@ -232,7 +239,7 @@ export async function essEmailHandler(event: ApplicationEvent) {
       mailService
         .sendMail({
           content: {
-            template_id: templateId,
+            template: templateId,
           },
           substitution_data: {
             piPreferredname: principalInvestigator.preferredname,
@@ -270,7 +277,6 @@ export async function essEmailHandler(event: ApplicationEvent) {
 
     case Event.PROPOSAL_VISIT_REGISTRATION_INVITES_UPDATED: {
       const invites = event.array;
-
       for (const invite of invites) {
         if (invite.isEmailSent) {
           continue;
@@ -307,6 +313,15 @@ export async function essEmailHandler(event: ApplicationEvent) {
     case Event.PROPOSAL_CO_PROPOSER_INVITES_UPDATED: {
       const invites = event.array;
 
+      const proposal = await proposalDataSource.get(event.proposalPKey);
+      if (!proposal) {
+        logger.logError('No proposal found when trying to send email', {
+          proposalPKey: event.proposalPKey,
+          event,
+        });
+
+        return;
+      }
       for (const invite of invites) {
         if (invite.isEmailSent) {
           continue;
@@ -327,7 +342,8 @@ export async function essEmailHandler(event: ApplicationEvent) {
         await sendInviteEmail(
           invite,
           inviter,
-          EmailTemplateId.USER_OFFICE_REGISTRATION_INVITATION_CO_PROPOSER
+          EmailTemplateId.USER_OFFICE_REGISTRATION_INVITATION_CO_PROPOSER,
+          { proposalTitle: proposal.title, proposalId: proposal.proposalId }
         ).then(async () => {
           await eventBus.publish({
             ...event,
@@ -353,7 +369,7 @@ export async function essEmailHandler(event: ApplicationEvent) {
       mailService
         .sendMail({
           content: {
-            template_id: EmailTemplateId.REVIEW_REMINDER,
+            template: EmailTemplateId.REVIEW_REMINDER,
           },
           substitution_data: {
             fapReviewerPreferredName: fapReviewer.preferredname,
@@ -396,6 +412,15 @@ export async function essEmailHandler(event: ApplicationEvent) {
 
     case Event.VISIT_REGISTRATION_APPROVED:
     case Event.VISIT_REGISTRATION_CANCELLED: {
+      const adminDataSource = container.resolve<AdminDataSource>(
+        Tokens.AdminDataSource
+      );
+
+      const [formatSetting, timezoneSetting] = await Promise.all([
+        adminDataSource.getSetting(SettingsId.DATE_TIME_FORMAT),
+        adminDataSource.getSetting(SettingsId.TIMEZONE),
+      ]);
+
       const visitRegistration = await visitDataSource.getRegistration(
         event.visitregistration.userId,
         event.visitregistration.visitId
@@ -421,11 +446,6 @@ export async function essEmailHandler(event: ApplicationEvent) {
         return;
       }
 
-      const call = await callDataSource.getCall(proposal.callId);
-      if (!call) {
-        return;
-      }
-
       const templateId =
         event.type === Event.VISIT_REGISTRATION_APPROVED
           ? EmailTemplateId.VISIT_REGISTRATION_APPROVED
@@ -434,14 +454,23 @@ export async function essEmailHandler(event: ApplicationEvent) {
       mailService
         .sendMail({
           content: {
-            template_id: templateId,
+            template: templateId,
           },
           substitution_data: {
             preferredname: user.preferredname,
-            startsAt: visitRegistration.startsAt,
-            endsAt: visitRegistration.endsAt,
+            startsAt: formatEmailDate(
+              visitRegistration.startsAt,
+              formatSetting?.settingsValue,
+              timezoneSetting?.settingsValue
+            ),
+            endsAt: formatEmailDate(
+              visitRegistration.endsAt,
+              formatSetting?.settingsValue,
+              timezoneSetting?.settingsValue
+            ),
             proposalTitle: proposal.title,
-            callShortCode: call.shortCode,
+            proposalId: proposal.proposalId,
+            oidcSub: user.oidcSub,
           },
           recipients: [
             { address: user.email },
@@ -480,7 +509,8 @@ export async function essEmailHandler(event: ApplicationEvent) {
 async function sendInviteEmail(
   invite: Invite,
   inviter: BasicUserDetails,
-  templateId: EmailTemplateId
+  templateId: EmailTemplateId,
+  additionalSubstitutionData?: Record<string, unknown>
 ) {
   const mailService = container.resolve<MailService>(Tokens.MailService);
   const inviteDataSource = container.resolve<InviteDataSource>(
@@ -490,7 +520,7 @@ async function sendInviteEmail(
   return mailService
     .sendMail({
       content: {
-        template_id: templateId,
+        template: templateId,
       },
       substitution_data: {
         email: invite.email,
@@ -498,6 +528,7 @@ async function sendInviteEmail(
         inviterLastname: inviter.lastname,
         inviterOrg: inviter.institution,
         redeemCode: invite.code,
+        ...additionalSubstitutionData,
       },
       recipients: [{ address: invite.email }],
     })

@@ -1,4 +1,6 @@
 import 'reflect-metadata';
+
+import { ValidUserInfo } from '@user-office-software/openid/lib/model/ValidUserInfo';
 import { container } from 'tsyringe';
 
 import { Tokens } from '../config/Tokens';
@@ -11,6 +13,7 @@ import { Institution } from '../models/Institution';
 import { Rejection } from '../models/Rejection';
 import { Role, Roles } from '../models/Role';
 import { AuthJwtPayload, User, UserWithRole } from '../models/User';
+import { GetOrCreateInstitutionInput } from '../resolvers/mutations/UpsertUserMutation';
 import { AdminDataSource } from './../datasources/AdminDataSource';
 
 export abstract class UserAuthorization {
@@ -32,6 +35,10 @@ export abstract class UserAuthorization {
   protected adminDataSource: AdminDataSource = container.resolve(
     Tokens.AdminDataSource
   );
+
+  protected getUniqueId(user: ValidUserInfo) {
+    return user.sub;
+  }
 
   isUserOfficer(agent: UserWithRole | null) {
     return agent?.currentRole?.shortCode === Roles.USER_OFFICER;
@@ -192,11 +199,9 @@ export abstract class UserAuthorization {
     iss: string | null
   ): Promise<User | null>;
 
-  abstract getOrCreateUserInstitution(userInfo: {
-    institution_ror_id?: string;
-    institution_name?: string;
-    institution_country?: string;
-  }): Promise<Institution | null>;
+  abstract getOrCreateUserInstitution(
+    institution: GetOrCreateInstitutionInput
+  ): Promise<Institution | null>;
 
   abstract logout(token: AuthJwtPayload): Promise<string | Rejection>;
 
