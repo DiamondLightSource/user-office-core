@@ -110,7 +110,7 @@ export class DlsUserAuthorization extends UserAuthorization {
         (userInfo.title as string) ?? 'unspecified',
         userInfo.given_name,
         userInfo.family_name,
-        userInfo.preferred_username ?? '',
+        userInfo.given_name ?? '',
         userInfo.sub,
         tokenSet.refresh_token ?? '',
         client.issuer.metadata.issuer,
