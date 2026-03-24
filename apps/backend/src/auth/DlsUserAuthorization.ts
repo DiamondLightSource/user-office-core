@@ -1,23 +1,19 @@
-import 'reflect-metadata';
 import { env } from 'process';
+import 'reflect-metadata';
 
 import { logger } from '@user-office-software/duo-logger';
 import { OpenIdClient } from '@user-office-software/openid';
 import { ValidTokenSet } from '@user-office-software/openid/lib/model/ValidTokenSet';
 import { ValidUserInfo } from '@user-office-software/openid/lib/model/ValidUserInfo';
 import { GraphQLError } from 'graphql';
-import { UserinfoResponse } from 'openid-client';
 
+import { Institution } from '../models/Institution';
 import { Rejection } from '../models/Rejection';
 import { AuthJwtPayload, User, UserRole } from '../models/User';
 import { OAuthAuthorization } from './OAuthAuthorization';
+import { GetOrCreateInstitutionInput } from '../resolvers/mutations/UpsertUserMutation';
 import { UserAuthorization } from './UserAuthorization';
 
-interface UserinfoResponseWithInstitution extends UserinfoResponse {
-  institution_ror_id?: string;
-  institution_name?: string;
-  institution_country?: string;
-}
 
 export class DlsUserAuthorization extends UserAuthorization {
   private oathClient = new OAuthAuthorization();
@@ -72,9 +68,9 @@ export class DlsUserAuthorization extends UserAuthorization {
   }
 
   public async getOrCreateUserInstitution(
-    userInfo: UserinfoResponseWithInstitution
-  ) {
-    return this.oathClient.getOrCreateUserInstitution(userInfo);
+    input: GetOrCreateInstitutionInput
+  ) : Promise<Institution | null> {
+    return await this.oathClient.getOrCreateUserInstitution(input)
   }
 
   private async upsertUser(
@@ -82,10 +78,20 @@ export class DlsUserAuthorization extends UserAuthorization {
     tokenSet: ValidTokenSet
   ): Promise<User> {
     const client = await OpenIdClient.getInstance();
-    const institution = await this.getOrCreateUserInstitution(userInfo);
-    const userWithOAuthSubMatch = await this.userDataSource.getByOIDCSub(
-      userInfo.sub
-    );
+    let institutionInput: GetOrCreateInstitutionInput = null;
+    if (userInfo.institution_ror_id) {
+      institutionInput = userInfo.institution_ror_id as string;
+    } else if (userInfo.institution_name && userInfo.institution_country) {
+      institutionInput = {
+        country: userInfo.institution_country as string,
+        name: userInfo.institution_name as string,
+      };
+    }
+
+    const institution = await this.getOrCreateUserInstitution(institutionInput);
+    const userId = this.getUniqueId(userInfo);
+    const userWithOAuthSubMatch =
+      await this.userDataSource.getByOIDCSub(userId);
 
     const userWithEmailMatch = await this.userDataSource.getByEmail(
       userInfo.email
@@ -99,9 +105,10 @@ export class DlsUserAuthorization extends UserAuthorization {
         email: userInfo.email,
         oauthIssuer: client.issuer.metadata.issuer,
         oauthRefreshToken: tokenSet.refresh_token ?? '',
-        oidcSub: userInfo.sub,
+        oidcSub: userId,
         institutionId: institution?.id ?? user.institutionId,
-        user_title: userInfo.title as string,
+        preferredname: userInfo.preferred_username,
+        userTitle: userInfo.title as string,
       });
 
       return updatedUser;
@@ -111,7 +118,7 @@ export class DlsUserAuthorization extends UserAuthorization {
         userInfo.given_name,
         userInfo.family_name,
         userInfo.given_name ?? '',
-        userInfo.sub,
+        userId,
         tokenSet.refresh_token ?? '',
         client.issuer.metadata.issuer,
         institution?.id ?? 1,
