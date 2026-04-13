@@ -169,15 +169,30 @@ export async function dlsEmailHandler(event: ApplicationEvent) {
           return;
         }
 
-        (options.substitution_data as any).name = participant.preferredname;
-        options.recipients = [
+        // Create a copy of options for each participant to avoid mutation issues
+        const participantEmailOptions: EmailSettings = {
+          ...options,
+          substitution_data: {
+            ...(options.substitution_data as any),
+            name: participant.preferredname,
+          },
+          recipients: [
+            {
+              address: participant.email,
+            },
+          ],
+        };
+
+        (participantEmailOptions.substitution_data as any).name =
+          participant.preferredname;
+        participantEmailOptions.recipients = [
           {
             address: participant.email,
           },
         ];
 
         mailService
-          .sendMail(options)
+          .sendMail(participantEmailOptions)
           .then((res: any) => {
             logger.logInfo('Emails sent on proposal submission:', {
               result: res,
