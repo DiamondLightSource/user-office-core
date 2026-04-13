@@ -183,14 +183,6 @@ export async function dlsEmailHandler(event: ApplicationEvent) {
           ],
         };
 
-        (participantEmailOptions.substitution_data as any).name =
-          participant.preferredname;
-        participantEmailOptions.recipients = [
-          {
-            address: participant.email,
-          },
-        ];
-
         mailService
           .sendMail(participantEmailOptions)
           .then((res: any) => {
