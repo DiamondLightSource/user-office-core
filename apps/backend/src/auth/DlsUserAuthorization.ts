@@ -10,10 +10,9 @@ import { GraphQLError } from 'graphql';
 import { Institution } from '../models/Institution';
 import { Rejection } from '../models/Rejection';
 import { AuthJwtPayload, User, UserRole } from '../models/User';
-import { OAuthAuthorization } from './OAuthAuthorization';
 import { GetOrCreateInstitutionInput } from '../resolvers/mutations/UpsertUserMutation';
+import { OAuthAuthorization } from './OAuthAuthorization';
 import { UserAuthorization } from './UserAuthorization';
-
 
 export class DlsUserAuthorization extends UserAuthorization {
   private oathClient = new OAuthAuthorization();
@@ -69,8 +68,8 @@ export class DlsUserAuthorization extends UserAuthorization {
 
   public async getOrCreateUserInstitution(
     input: GetOrCreateInstitutionInput
-  ) : Promise<Institution | null> {
-    return await this.oathClient.getOrCreateUserInstitution(input)
+  ): Promise<Institution | null> {
+    return await this.oathClient.getOrCreateUserInstitution(input);
   }
 
   private async upsertUser(
@@ -106,9 +105,6 @@ export class DlsUserAuthorization extends UserAuthorization {
         oauthIssuer: client.issuer.metadata.issuer,
         oauthRefreshToken: tokenSet.refresh_token ?? '',
         oidcSub: userId,
-        institutionId: institution?.id ?? user.institutionId,
-        preferredname: userInfo.preferred_username,
-        userTitle: userInfo.title as string,
       });
 
       return updatedUser;
