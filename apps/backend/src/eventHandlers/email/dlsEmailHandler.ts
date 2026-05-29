@@ -136,13 +136,15 @@ export async function dlsEmailHandler(event: ApplicationEvent) {
             submittedOn: event.proposal.submittedDate!.toLocaleString(),
             accessRoute: workflow?.name || 'N/A',
             principalInvestigator:
-              principalInvestigator.preferredname +
-              ' ' +
-              principalInvestigator.lastname,
+              principalInvestigator.preferredname ||
+              principalInvestigator.firstname +
+                ' ' +
+                principalInvestigator.lastname,
             establishment: principalInvestigator.institution,
             alternativeContacts: '',
             coinvestigators: participants.map(
-              (partipant) => `${partipant.preferredname} ${partipant.lastname} `
+              (partipant) =>
+                `${partipant.preferredname || partipant.firstname} ${partipant.lastname} `
             ),
             requested: instruments
               .map((instrument) => {
@@ -174,7 +176,7 @@ export async function dlsEmailHandler(event: ApplicationEvent) {
           ...options,
           substitution_data: {
             ...(options.substitution_data as any),
-            name: participant.preferredname,
+            name: participant.preferredname || participant.firstname,
           },
           recipients: [
             {
@@ -237,7 +239,9 @@ export async function dlsEmailHandler(event: ApplicationEvent) {
             template: emailTemplate.id.toString(),
           },
           substitution_data: {
-            sender: inviter.preferredname + ' ' + inviter.lastname,
+            sender:
+              inviter.preferredname ||
+              inviter.firstname + ' ' + inviter.lastname,
             redeem_code: invite.code,
             uos_instance: process.env.BASE_URL,
             uas_instance: getUASInstance(),
