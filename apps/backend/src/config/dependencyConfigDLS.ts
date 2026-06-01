@@ -43,7 +43,7 @@ import PostgresVisitDataSource from '../datasources/postgres/VisitDataSource';
 import PostgresVisitRegistrationClaimDataSource from '../datasources/postgres/VisitRegistrationClaimDataSource';
 import PostgresWorkflowDataSource from '../datasources/postgres/WorkflowDataSource';
 import { dlsEmailHandler } from '../eventHandlers/email/dlsEmailHandler';
-import { createSkipLoggingHandler } from '../eventHandlers/logging';
+import createLoggingHandler from '../eventHandlers/logging';
 import { SMTPMailService } from '../eventHandlers/MailService/SMTPMailService';
 import {
   createListenToRabbitMQHandler,
@@ -134,7 +134,7 @@ mapValue(Tokens.EmailEventHandler, dlsEmailHandler);
 mapClass(Tokens.EmailTemplateDataSource, PostgresEmailTemplateDataSource);
 
 mapValue(Tokens.PostToMessageQueue, createPostToRabbitMQHandler());
-mapValue(Tokens.LoggingHandler, createSkipLoggingHandler());
+mapValue(Tokens.LoggingHandler, createLoggingHandler());
 mapValue(Tokens.EventBus, createApplicationEventBus());
 mapValue(Tokens.ListenToMessageQueue, createListenToRabbitMQHandler());
 
