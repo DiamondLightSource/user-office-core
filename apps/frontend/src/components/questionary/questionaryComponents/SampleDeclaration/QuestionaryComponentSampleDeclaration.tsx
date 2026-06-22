@@ -211,7 +211,7 @@ function QuestionaryComponentSampleDeclaration(
                 data-cy="sample-declaration-modal"
                 maxWidth="md"
                 fullWidth
-                title="Sample Declaration"
+                title="ERA Component"
               >
                 <DialogContent dividers>
                   {selectedSample ? (

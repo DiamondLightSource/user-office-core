@@ -59,7 +59,7 @@ export function SampleDeclarationContainer(props: {
   return (
     <QuestionaryContext.Provider value={{ state, dispatch }}>
       <Questionary
-        title={state.sample.title || 'New Sample'}
+        title={state.sample.title || ''}
         previewMode={props.previewMode}
       />
     </QuestionaryContext.Provider>
