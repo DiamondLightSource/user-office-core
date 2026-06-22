@@ -66,7 +66,7 @@ const SamplesAnswerRenderer = ({
         fullWidth
         open={selectedSampleId !== null}
         onClose={() => setSelectedSampleId(null)}
-        title="Sample details"
+        title="ERA Component"
       >
         <DialogContent>
           {selectedSampleId ? (
